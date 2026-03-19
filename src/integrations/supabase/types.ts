@@ -14,7 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      dose_logs: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          medication_id: string
+          scheduled_time: string
+          status: string
+          taken_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          id?: string
+          medication_id: string
+          scheduled_time: string
+          status?: string
+          taken_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          medication_id?: string
+          scheduled_time?: string
+          status?: string
+          taken_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dose_logs_medication_id_fkey"
+            columns: ["medication_id"]
+            isOneToOne: false
+            referencedRelation: "medications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medications: {
+        Row: {
+          color: string
+          created_at: string
+          dosage: string
+          frequency: string
+          icon: string
+          id: string
+          name: string
+          notes: string | null
+          photo_url: string | null
+          times: string[]
+        }
+        Insert: {
+          color: string
+          created_at?: string
+          dosage: string
+          frequency: string
+          icon: string
+          id?: string
+          name: string
+          notes?: string | null
+          photo_url?: string | null
+          times: string[]
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          dosage?: string
+          frequency?: string
+          icon?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          photo_url?: string | null
+          times?: string[]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
