@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Clock, Check, X } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 import type { Medication, DoseLog } from '@/lib/medication-store';
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function MedicationCard({ medication, logs, onMarkDose }: Props) {
+  const { t } = useI18n();
   const pendingLogs = logs.filter(l => l.status === 'pending');
   const takenLogs = logs.filter(l => l.status === 'taken');
 
@@ -20,12 +22,18 @@ export default function MedicationCard({ medication, logs, onMarkDose }: Props) 
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
-          <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
-            style={{ backgroundColor: medication.color + '18' }}
-          >
-            {medication.icon}
-          </div>
+          {medication.photo_url ? (
+            <div className="w-12 h-12 rounded-xl overflow-hidden border border-border">
+              <img src={medication.photo_url} alt={medication.name} className="w-full h-full object-cover" />
+            </div>
+          ) : (
+            <div
+              className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+              style={{ backgroundColor: medication.color + '18' }}
+            >
+              {medication.icon}
+            </div>
+          )}
           <div>
             <h3 className="font-heading font-bold text-card-foreground text-lg">{medication.name}</h3>
             <p className="text-muted-foreground text-sm">{medication.dosage} · {medication.frequency}</p>
@@ -33,7 +41,7 @@ export default function MedicationCard({ medication, logs, onMarkDose }: Props) 
         </div>
         {takenLogs.length === logs.length && logs.length > 0 && (
           <span className="inline-flex items-center gap-1 rounded-full bg-secondary text-secondary-foreground px-3 py-1 text-xs font-medium">
-            <Check className="w-3 h-3" /> Done
+            <Check className="w-3 h-3" /> {t('done')}
           </span>
         )}
       </div>
@@ -44,7 +52,7 @@ export default function MedicationCard({ medication, logs, onMarkDose }: Props) 
             <div key={log.id} className="flex items-center justify-between bg-muted rounded-xl px-4 py-3">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Clock className="w-4 h-4" />
-                <span>Due at {log.scheduledTime}</span>
+                <span>{t('dueAt')} {log.scheduled_time}</span>
               </div>
               <div className="flex gap-2">
                 <button
@@ -68,7 +76,7 @@ export default function MedicationCard({ medication, logs, onMarkDose }: Props) 
       {pendingLogs.length === 0 && takenLogs.length > 0 && (
         <div className="mt-3 text-sm text-muted-foreground flex items-center gap-2">
           <Check className="w-4 h-4 text-primary" />
-          All doses taken for today
+          {t('allDosesTaken')}
         </div>
       )}
     </motion.div>

@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface Medication {
   id: string;
@@ -8,14 +9,15 @@ export interface Medication {
   times: string[];
   color: string;
   icon: string;
-  notes?: string;
+  photo_url?: string | null;
+  notes?: string | null;
 }
 
 export interface DoseLog {
   id: string;
-  medicationId: string;
-  scheduledTime: string;
-  takenAt?: string;
+  medication_id: string;
+  scheduled_time: string;
+  taken_at?: string | null;
   status: 'pending' | 'taken' | 'missed' | 'skipped';
   date: string;
 }
@@ -23,60 +25,75 @@ export interface DoseLog {
 const COLORS = ['#3B9B6E', '#E8963E', '#5B8DEF', '#E85D75', '#9B6ED8', '#4ECDC4'];
 const ICONS = ['💊', '💉', '🩹', '🧴', '💧', '🌿'];
 
-const SAMPLE_MEDICATIONS: Medication[] = [
-  { id: '1', name: 'Metformin', dosage: '500mg', frequency: 'Twice daily', times: ['08:00', '20:00'], color: COLORS[0], icon: '💊' },
-  { id: '2', name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily', times: ['09:00'], color: COLORS[1], icon: '💧' },
-  { id: '3', name: 'Vitamin D', dosage: '1000 IU', frequency: 'Once daily', times: ['08:00'], color: COLORS[2], icon: '🌿' },
-  { id: '4', name: 'Aspirin', dosage: '81mg', frequency: 'Once daily', times: ['07:30'], color: COLORS[3], icon: '🩹' },
-];
-
 const today = new Date().toISOString().split('T')[0];
 
-const SAMPLE_LOGS: DoseLog[] = [
-  { id: 'l1', medicationId: '1', scheduledTime: '08:00', takenAt: '08:05', status: 'taken', date: today },
-  { id: 'l2', medicationId: '3', scheduledTime: '08:00', takenAt: '08:05', status: 'taken', date: today },
-  { id: 'l3', medicationId: '4', scheduledTime: '07:30', takenAt: '07:32', status: 'taken', date: today },
-  { id: 'l4', medicationId: '2', scheduledTime: '09:00', status: 'pending', date: today },
-  { id: 'l5', medicationId: '1', scheduledTime: '20:00', status: 'pending', date: today },
-];
-
 export function useMedicationStore() {
-  const [medications, setMedications] = useState<Medication[]>(SAMPLE_MEDICATIONS);
-  const [doseLogs, setDoseLogs] = useState<DoseLog[]>(SAMPLE_LOGS);
+  const [medications, setMedications] = useState<Medication[]>([]);
+  const [doseLogs, setDoseLogs] = useState<DoseLog[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const addMedication = useCallback((med: Omit<Medication, 'id' | 'color' | 'icon'>) => {
-    const newMed: Medication = {
-      ...med,
-      id: Date.now().toString(),
+  // Fetch data on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      const [medsRes, logsRes] = await Promise.all([
+        supabase.from('medications').select('*'),
+        supabase.from('dose_logs').select('*').eq('date', today),
+      ]);
+      if (medsRes.data) setMedications(medsRes.data as Medication[]);
+      if (logsRes.data) setDoseLogs(logsRes.data as DoseLog[]);
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
+
+  const addMedication = useCallback(async (med: { name: string; dosage: string; frequency: string; times: string[]; notes?: string; photo_url?: string }) => {
+    const newMed = {
+      name: med.name,
+      dosage: med.dosage,
+      frequency: med.frequency,
+      times: med.times,
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
       icon: ICONS[Math.floor(Math.random() * ICONS.length)],
+      photo_url: med.photo_url || null,
+      notes: med.notes || null,
     };
-    setMedications(prev => [...prev, newMed]);
+
+    const { data, error } = await supabase.from('medications').insert(newMed).select().single();
+    if (error || !data) return;
+
+    setMedications(prev => [...prev, data as Medication]);
+
     // Create dose logs for today
-    const newLogs = med.times.map((time, i) => ({
-      id: `${Date.now()}-${i}`,
-      medicationId: newMed.id,
-      scheduledTime: time,
-      status: 'pending' as const,
+    const logs = med.times.map(time => ({
+      medication_id: data.id,
+      scheduled_time: time,
+      status: 'pending',
       date: today,
     }));
-    setDoseLogs(prev => [...prev, ...newLogs]);
+
+    const { data: logsData } = await supabase.from('dose_logs').insert(logs).select();
+    if (logsData) setDoseLogs(prev => [...prev, ...(logsData as DoseLog[])]);
   }, []);
 
-  const markDose = useCallback((logId: string, status: 'taken' | 'skipped') => {
-    setDoseLogs(prev => prev.map(log =>
-      log.id === logId ? { ...log, status, takenAt: status === 'taken' ? new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : undefined } : log
-    ));
+  const markDose = useCallback(async (logId: string, status: 'taken' | 'skipped') => {
+    const takenAt = status === 'taken' ? new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : null;
+    const { error } = await supabase.from('dose_logs').update({ status, taken_at: takenAt }).eq('id', logId);
+    if (!error) {
+      setDoseLogs(prev => prev.map(log => log.id === logId ? { ...log, status, taken_at: takenAt } : log));
+    }
   }, []);
 
-  const deleteMedication = useCallback((id: string) => {
-    setMedications(prev => prev.filter(m => m.id !== id));
-    setDoseLogs(prev => prev.filter(l => l.medicationId !== id));
+  const deleteMedication = useCallback(async (id: string) => {
+    const { error } = await supabase.from('medications').delete().eq('id', id);
+    if (!error) {
+      setMedications(prev => prev.filter(m => m.id !== id));
+      setDoseLogs(prev => prev.filter(l => l.medication_id !== id));
+    }
   }, []);
 
   const todayLogs = doseLogs.filter(l => l.date === today);
   const takenCount = todayLogs.filter(l => l.status === 'taken').length;
   const adherenceRate = todayLogs.length > 0 ? Math.round((takenCount / todayLogs.length) * 100) : 0;
 
-  return { medications, doseLogs: todayLogs, addMedication, markDose, deleteMedication, adherenceRate, takenCount, totalDoses: todayLogs.length };
+  return { medications, doseLogs: todayLogs, addMedication, markDose, deleteMedication, adherenceRate, takenCount, totalDoses: todayLogs.length, loading };
 }
