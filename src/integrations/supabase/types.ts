@@ -91,6 +91,44 @@ export type Database = {
         }
         Relationships: []
       }
+      symptom_logs: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          medication_id: string
+          mood: string
+          notes: string | null
+          symptoms: string[] | null
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          id?: string
+          medication_id: string
+          mood?: string
+          notes?: string | null
+          symptoms?: string[] | null
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          medication_id?: string
+          mood?: string
+          notes?: string | null
+          symptoms?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "symptom_logs_medication_id_fkey"
+            columns: ["medication_id"]
+            isOneToOne: false
+            referencedRelation: "medications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

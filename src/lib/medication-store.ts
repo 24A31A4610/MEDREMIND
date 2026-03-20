@@ -22,6 +22,16 @@ export interface DoseLog {
   date: string;
 }
 
+export interface SymptomLog {
+  id: string;
+  medication_id: string;
+  date: string;
+  mood: string;
+  symptoms: string[];
+  notes?: string | null;
+  created_at: string;
+}
+
 const COLORS = ['#3B9B6E', '#E8963E', '#5B8DEF', '#E85D75', '#9B6ED8', '#4ECDC4'];
 const ICONS = ['💊', '💉', '🩹', '🧴', '💧', '🌿'];
 
@@ -30,17 +40,23 @@ const today = new Date().toISOString().split('T')[0];
 export function useMedicationStore() {
   const [medications, setMedications] = useState<Medication[]>([]);
   const [doseLogs, setDoseLogs] = useState<DoseLog[]>([]);
+  const [symptomLogs, setSymptomLogs] = useState<SymptomLog[]>([]);
+  const [allLogs, setAllLogs] = useState<DoseLog[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Fetch data on mount
   useEffect(() => {
     const fetchData = async () => {
-      const [medsRes, logsRes] = await Promise.all([
+      const [medsRes, logsRes, symptomRes, allLogsRes] = await Promise.all([
         supabase.from('medications').select('*'),
         supabase.from('dose_logs').select('*').eq('date', today),
+        supabase.from('symptom_logs').select('*').eq('date', today),
+        supabase.from('dose_logs').select('*').order('date', { ascending: false }),
       ]);
       if (medsRes.data) setMedications(medsRes.data as Medication[]);
       if (logsRes.data) setDoseLogs(logsRes.data as DoseLog[]);
+      if (symptomRes.data) setSymptomLogs(symptomRes.data as SymptomLog[]);
+      if (allLogsRes.data) setAllLogs(allLogsRes.data as DoseLog[]);
       setLoading(false);
     };
     fetchData();
@@ -91,9 +107,54 @@ export function useMedicationStore() {
     }
   }, []);
 
+  const addSymptomLog = useCallback(async (log: { medication_id: string; mood: string; symptoms: string[]; notes?: string }) => {
+    const { data, error } = await supabase.from('symptom_logs').insert({
+      medication_id: log.medication_id,
+      mood: log.mood,
+      symptoms: log.symptoms,
+      notes: log.notes || null,
+      date: today,
+    }).select().single();
+    if (!error && data) setSymptomLogs(prev => [...prev, data as SymptomLog]);
+  }, []);
+
+  // Streak calculation from allLogs
+  const calculateStreak = useCallback(() => {
+    if (allLogs.length === 0) return { current: 0, best: 0 };
+
+    const dateSet = new Map<string, { total: number; taken: number }>();
+    for (const log of allLogs) {
+      const entry = dateSet.get(log.date) || { total: 0, taken: 0 };
+      entry.total++;
+      if (log.status === 'taken') entry.taken++;
+      dateSet.set(log.date, entry);
+    }
+
+    const sortedDates = [...dateSet.keys()].sort().reverse();
+    let current = 0;
+    let best = 0;
+    let streak = 0;
+
+    for (const date of sortedDates) {
+      const entry = dateSet.get(date)!;
+      if (entry.taken === entry.total && entry.total > 0) {
+        streak++;
+        best = Math.max(best, streak);
+      } else {
+        if (streak > 0 && current === 0) current = streak;
+        streak = 0;
+      }
+    }
+    if (streak > 0 && current === 0) current = streak;
+    best = Math.max(best, streak);
+    return { current, best };
+  }, [allLogs]);
+
+  const { current: currentStreak, best: bestStreak } = calculateStreak();
+
   const todayLogs = doseLogs.filter(l => l.date === today);
   const takenCount = todayLogs.filter(l => l.status === 'taken').length;
   const adherenceRate = todayLogs.length > 0 ? Math.round((takenCount / todayLogs.length) * 100) : 0;
 
-  return { medications, doseLogs: todayLogs, addMedication, markDose, deleteMedication, adherenceRate, takenCount, totalDoses: todayLogs.length, loading };
+  return { medications, doseLogs: todayLogs, symptomLogs, addMedication, markDose, deleteMedication, addSymptomLog, adherenceRate, takenCount, totalDoses: todayLogs.length, loading, currentStreak, bestStreak };
 }

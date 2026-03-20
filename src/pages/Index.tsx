@@ -9,9 +9,12 @@ import AdherenceRing from '@/components/AdherenceRing';
 import AddMedicationDialog from '@/components/AddMedicationDialog';
 import UpcomingReminder from '@/components/UpcomingReminder';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import StreakBadge from '@/components/StreakBadge';
+import DoseCalendar from '@/components/DoseCalendar';
+import SymptomDiary from '@/components/SymptomDiary';
 
 const Index = () => {
-  const { medications, doseLogs, addMedication, markDose, deleteMedication, adherenceRate, takenCount, totalDoses, loading } = useMedicationStore();
+  const { medications, doseLogs, symptomLogs, addMedication, markDose, deleteMedication, addSymptomLog, adherenceRate, takenCount, totalDoses, loading, currentStreak, bestStreak } = useMedicationStore();
   const { t } = useI18n();
   const [alarmInfo, setAlarmInfo] = useState<{ medName: string; logId: string } | null>(null);
 
@@ -118,7 +121,16 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Streak Badge */}
+        <StreakBadge currentStreak={currentStreak} bestStreak={bestStreak} />
+
         <UpcomingReminder medications={medications} logs={doseLogs} />
+
+        {/* Dose Calendar */}
+        <DoseCalendar medications={medications} />
+
+        {/* Symptom Diary */}
+        <SymptomDiary medications={medications} symptomLogs={symptomLogs} onAddLog={addSymptomLog} />
 
         <div>
           <h2 className="font-heading font-bold text-lg text-foreground mb-3">{t('yourMedications')}</h2>
