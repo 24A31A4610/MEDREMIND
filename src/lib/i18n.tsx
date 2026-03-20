@@ -248,6 +248,9 @@ const translations: Record<Language, Record<string, string>> = {
     loading: 'ലോഡ് ചെയ്യുന്നു...',
     egName: 'ഉദാ. മെറ്റ്‌ഫോർമിൻ',
     egDosage: 'ഉദാ. 500mg',
+    alarmTitle: 'മരുന്ന് കഴിക്കാൻ സമയമായി!',
+    alarmTake: 'കഴിക്കുക',
+    alarmDismiss: 'തള്ളിക്കളയുക',
   },
 };
 
