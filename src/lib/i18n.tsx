@@ -48,6 +48,9 @@ const translations: Record<Language, Record<string, string>> = {
     loading: 'Loading...',
     egName: 'e.g. Metformin',
     egDosage: 'e.g. 500mg',
+    alarmTitle: 'Time for your medicine!',
+    alarmTake: 'Take',
+    alarmDismiss: 'Dismiss',
   },
   hi: {
     appName: 'MedRemind',
