@@ -22,6 +22,16 @@ export interface DoseLog {
   date: string;
 }
 
+export interface SymptomLog {
+  id: string;
+  medication_id: string;
+  date: string;
+  mood: string;
+  symptoms: string[];
+  notes?: string | null;
+  created_at: string;
+}
+
 const COLORS = ['#3B9B6E', '#E8963E', '#5B8DEF', '#E85D75', '#9B6ED8', '#4ECDC4'];
 const ICONS = ['💊', '💉', '🩹', '🧴', '💧', '🌿'];
 
