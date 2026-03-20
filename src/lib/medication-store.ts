@@ -40,17 +40,23 @@ const today = new Date().toISOString().split('T')[0];
 export function useMedicationStore() {
   const [medications, setMedications] = useState<Medication[]>([]);
   const [doseLogs, setDoseLogs] = useState<DoseLog[]>([]);
+  const [symptomLogs, setSymptomLogs] = useState<SymptomLog[]>([]);
+  const [allLogs, setAllLogs] = useState<DoseLog[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Fetch data on mount
   useEffect(() => {
     const fetchData = async () => {
-      const [medsRes, logsRes] = await Promise.all([
+      const [medsRes, logsRes, symptomRes, allLogsRes] = await Promise.all([
         supabase.from('medications').select('*'),
         supabase.from('dose_logs').select('*').eq('date', today),
+        supabase.from('symptom_logs').select('*').eq('date', today),
+        supabase.from('dose_logs').select('*').order('date', { ascending: false }),
       ]);
       if (medsRes.data) setMedications(medsRes.data as Medication[]);
       if (logsRes.data) setDoseLogs(logsRes.data as DoseLog[]);
+      if (symptomRes.data) setSymptomLogs(symptomRes.data as SymptomLog[]);
+      if (allLogsRes.data) setAllLogs(allLogsRes.data as DoseLog[]);
       setLoading(false);
     };
     fetchData();
