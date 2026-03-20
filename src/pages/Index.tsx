@@ -1,7 +1,9 @@
-import { motion } from 'framer-motion';
-import { Pill, CalendarDays, TrendingUp, Trash2, Loader2 } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Pill, CalendarDays, TrendingUp, Trash2, Loader2, BellRing, Check, X } from 'lucide-react';
 import { useMedicationStore } from '@/lib/medication-store';
 import { useI18n } from '@/lib/i18n';
+import { useAlarmReminder } from '@/hooks/useAlarmReminder';
 import MedicationCard from '@/components/MedicationCard';
 import AdherenceRing from '@/components/AdherenceRing';
 import AddMedicationDialog from '@/components/AddMedicationDialog';
@@ -11,6 +13,20 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 const Index = () => {
   const { medications, doseLogs, addMedication, markDose, deleteMedication, adherenceRate, takenCount, totalDoses, loading } = useMedicationStore();
   const { t } = useI18n();
+  const [alarmInfo, setAlarmInfo] = useState<{ medName: string; logId: string } | null>(null);
+
+  const handleAlarm = useCallback((medName: string, logId: string) => {
+    setAlarmInfo({ medName, logId });
+  }, []);
+
+  useAlarmReminder(medications, doseLogs, handleAlarm);
+
+  const handleAlarmTake = () => {
+    if (alarmInfo) {
+      markDose(alarmInfo.logId, 'taken');
+      setAlarmInfo(null);
+    }
+  };
 
   const today = new Date();
   const hour = today.getHours();
