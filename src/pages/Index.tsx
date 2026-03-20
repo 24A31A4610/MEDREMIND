@@ -42,6 +42,38 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Alarm Banner */}
+      <AnimatePresence>
+        {alarmInfo && (
+          <motion.div
+            initial={{ y: -80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -80, opacity: 0 }}
+            className="fixed top-0 left-0 right-0 z-50 bg-primary text-primary-foreground p-4 shadow-2xl"
+          >
+            <div className="max-w-2xl mx-auto flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center animate-pulse">
+                  <BellRing className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="font-heading font-bold">{t('alarmTitle')}</p>
+                  <p className="text-sm opacity-90">{alarmInfo.medName}</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={handleAlarmTake} className="flex items-center gap-1 bg-primary-foreground text-primary px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity">
+                  <Check className="w-4 h-4" /> {t('alarmTake')}
+                </button>
+                <button onClick={() => setAlarmInfo(null)} className="flex items-center gap-1 bg-primary-foreground/20 px-3 py-2 rounded-full text-sm font-medium hover:bg-primary-foreground/30 transition-colors">
+                  <X className="w-4 h-4" /> {t('alarmDismiss')}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="max-w-2xl mx-auto px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
