@@ -208,6 +208,9 @@ const translations: Record<Language, Record<string, string>> = {
     loading: 'ಲೋಡ್ ಆಗುತ್ತಿದೆ...',
     egName: 'ಉದಾ. ಮೆಟ್‌ಫಾರ್ಮಿನ್',
     egDosage: 'ಉದಾ. 500mg',
+    alarmTitle: 'ಔಷಧ ತೆಗೆದುಕೊಳ್ಳುವ ಸಮಯ!',
+    alarmTake: 'ತೆಗೆದುಕೊಳ್ಳಿ',
+    alarmDismiss: 'ವಜಾ ಮಾಡಿ',
   },
   ml: {
     appName: 'MedRemind',
