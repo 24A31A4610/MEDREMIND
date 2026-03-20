@@ -48,6 +48,9 @@ const translations: Record<Language, Record<string, string>> = {
     loading: 'Loading...',
     egName: 'e.g. Metformin',
     egDosage: 'e.g. 500mg',
+    alarmTitle: 'Time for your medicine!',
+    alarmTake: 'Take',
+    alarmDismiss: 'Dismiss',
   },
   hi: {
     appName: 'MedRemind',
@@ -85,6 +88,9 @@ const translations: Record<Language, Record<string, string>> = {
     loading: 'लोड हो रहा है...',
     egName: 'जैसे मेटफॉर्मिन',
     egDosage: 'जैसे 500mg',
+    alarmTitle: 'दवा लेने का समय!',
+    alarmTake: 'लें',
+    alarmDismiss: 'खारिज करें',
   },
   ta: {
     appName: 'MedRemind',
@@ -122,6 +128,9 @@ const translations: Record<Language, Record<string, string>> = {
     loading: 'ஏற்றுகிறது...',
     egName: 'எ.கா. மெட்ஃபார்மின்',
     egDosage: 'எ.கா. 500mg',
+    alarmTitle: 'மருந்து நேரம்!',
+    alarmTake: 'எடுங்கள்',
+    alarmDismiss: 'நிராகரி',
   },
   te: {
     appName: 'MedRemind',
@@ -159,6 +168,9 @@ const translations: Record<Language, Record<string, string>> = {
     loading: 'లోడ్ అవుతోంది...',
     egName: 'ఉదా. మెట్‌ఫార్మిన్',
     egDosage: 'ఉదా. 500mg',
+    alarmTitle: 'మందు తీసుకునే సమయం!',
+    alarmTake: 'తీసుకో',
+    alarmDismiss: 'తీసివేయి',
   },
   kn: {
     appName: 'MedRemind',
@@ -196,6 +208,9 @@ const translations: Record<Language, Record<string, string>> = {
     loading: 'ಲೋಡ್ ಆಗುತ್ತಿದೆ...',
     egName: 'ಉದಾ. ಮೆಟ್‌ಫಾರ್ಮಿನ್',
     egDosage: 'ಉದಾ. 500mg',
+    alarmTitle: 'ಔಷಧ ತೆಗೆದುಕೊಳ್ಳುವ ಸಮಯ!',
+    alarmTake: 'ತೆಗೆದುಕೊಳ್ಳಿ',
+    alarmDismiss: 'ವಜಾ ಮಾಡಿ',
   },
   ml: {
     appName: 'MedRemind',
@@ -233,6 +248,9 @@ const translations: Record<Language, Record<string, string>> = {
     loading: 'ലോഡ് ചെയ്യുന്നു...',
     egName: 'ഉദാ. മെറ്റ്‌ഫോർമിൻ',
     egDosage: 'ഉദാ. 500mg',
+    alarmTitle: 'മരുന്ന് കഴിക്കാൻ സമയമായി!',
+    alarmTake: 'കഴിക്കുക',
+    alarmDismiss: 'തള്ളിക്കളയുക',
   },
 };
 
