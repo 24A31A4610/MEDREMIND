@@ -121,17 +121,7 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Streak Badge */}
-        <StreakBadge currentStreak={currentStreak} bestStreak={bestStreak} />
-
-        <UpcomingReminder medications={medications} logs={doseLogs} />
-
-        {/* Dose Calendar */}
-        <DoseCalendar medications={medications} />
-
-        {/* Symptom Diary */}
-        <SymptomDiary medications={medications} symptomLogs={symptomLogs} onAddLog={addSymptomLog} />
-
+        {/* Your Medications - moved to top */}
         <div>
           <h2 className="font-heading font-bold text-lg text-foreground mb-3">{t('yourMedications')}</h2>
           <div className="space-y-3">
@@ -158,6 +148,18 @@ const Index = () => {
             )}
           </div>
         </div>
+
+        {/* Streak Badge */}
+        <StreakBadge currentStreak={currentStreak} bestStreak={bestStreak} />
+
+        <UpcomingReminder medications={medications} logs={doseLogs} />
+
+        {/* Dose Calendar */}
+        <DoseCalendar medications={medications} />
+
+        {/* Symptom Diary */}
+        <SymptomDiary medications={medications} symptomLogs={symptomLogs} onAddLog={addSymptomLog} />
+
       </main>
     </div>
   );
