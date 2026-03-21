@@ -121,6 +121,34 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Your Medications - moved to top */}
+        <div>
+          <h2 className="font-heading font-bold text-lg text-foreground mb-3">{t('yourMedications')}</h2>
+          <div className="space-y-3">
+            {medications.map(med => (
+              <div key={med.id} className="relative group">
+                <MedicationCard
+                  medication={med}
+                  logs={doseLogs.filter(l => l.medication_id === med.id)}
+                  onMarkDose={markDose}
+                />
+                <button
+                  onClick={() => deleteMedication(med.id)}
+                  className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8 rounded-full bg-destructive/10 text-destructive flex items-center justify-center hover:bg-destructive/20"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+            {medications.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground">
+                <Pill className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p className="font-medium">{t('addMedication')}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Streak Badge */}
         <StreakBadge currentStreak={currentStreak} bestStreak={bestStreak} />
 
